@@ -224,7 +224,7 @@ const resolvers = {
         console.log("Fetching all receipts");
 
         const data = await runMySQLQuery(
-          "SELECT * FROM RME_TEST.receipts_2"
+          "SELECT * FROM RME_TEST. Receipts_Report"
         );
 
         if (!data.length) {

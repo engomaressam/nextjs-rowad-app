@@ -24,11 +24,17 @@ app.use(helmet());
 
 // CORS configuration
 app.use(cors({
-  origin: "http://10.10.11.241:3000", // ✅ Allow only your Next.js frontend
-  credentials: true, // ✅ Allow cookies/auth headers
+  origin: [
+    "http://10.10.11.241:3000",  // Your main server
+    "http://10.10.12.223:3000",  // Allowed laptop ayman
+    "http://10.10.12.242:3000",  // Allowed laptop nada
+    "http://10.10.13.247:3000"   // Allowed laptop yasser
+  ],
+  credentials: true,
   methods: "GET,POST,OPTIONS",
   allowedHeaders: "Content-Type, Authorization"
 }));
+
 
 
 const dynamicCors = (req, res, next) => {
