@@ -118,14 +118,11 @@ const resolvers = {
   Query: {
     ping: () => "pong",
     // Query to fetch all users from the database
-    getUsers: async (_, __, { user }) => {
-      if (!user || user.role !== "admin") {
-        throw new Error("Unauthorized");
-      }
-      return await runMySQLQuery(
-        "SELECT id, username, email, role FROM RME_TEST.users"
-      );
-    },
+	getUsers: async () => {
+	  return await runMySQLQuery(
+		"SELECT id, username, email, role FROM RME_TEST.users"
+	  );
+	},
 
     // Get User by Email (Logged-in users only)
     getUserByEmail: async (_, { email }, { user }) => {

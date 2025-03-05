@@ -23,17 +23,13 @@ app.use(helmet());
 // app.use(limiter);
 
 // CORS configuration
-const corsOptions = {
-  origin: [
-    "http://localhost:3000",
-    "https://studio.apollographql.com",
-    "http://10.10.12.223:3000",
-  ],
-  credentials: true,
-  methods: "GET,POST,OPTIONS", // Allowed methods
-  allowedHeaders: "Content-Type, Authorization", // Allowed headers
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: "http://10.10.11.241:3000", // ✅ Allow only your Next.js frontend
+  credentials: true, // ✅ Allow cookies/auth headers
+  methods: "GET,POST,OPTIONS",
+  allowedHeaders: "Content-Type, Authorization"
+}));
+
 
 const dynamicCors = (req, res, next) => {
   const origin = req.header("Origin");
