@@ -1,28 +1,39 @@
+"use client";
+
+import { Button, Card, CardBody } from "@heroui/react";
 import Container from "./components/Container";
 
 export default function Home() {
   return (
     <Container>
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">
-        Welcome to Expenditure Manager
-      </h1>
-      <p className="text-gray-600 mb-4">
-        Easily add and view your expenditures.
-      </p>
-      <div className="flex space-x-4">
-        <a
-          href="/add-expenditure"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
-        >
-          Add Expenditure
-        </a>
-        <a
-          href="/expenditures"
-          className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
-        >
-          View Expenditures
-        </a>
-      </div>
+      <Card shadow="lg" className="p-6 bg-white dark:bg-gray-800">
+        <CardBody>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-6">
+            Welcome to Expenditure Manager
+          </h1>
+          <p className="text-gray-600 dark:text-gray-300 mb-4">
+            Easily add and view your expenditures.
+          </p>
+          <div className="flex space-x-4">
+            <Button
+              as="a"
+              href="/add-expenditure"
+              color="primary"
+              variant="flat"
+            >
+              Add Expenditure
+            </Button>
+            <Button
+              as="a"
+              href="/expenditures"
+              color="secondary"
+              variant="flat"
+            >
+              View Expenditures
+            </Button>
+          </div>
+        </CardBody>
+      </Card>
     </Container>
   );
 }

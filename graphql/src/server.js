@@ -1,12 +1,11 @@
 import dotenv from "dotenv";
 import express from "express";
 import helmet from "helmet";
-// import { rateLimit } from "express-rate-limit";
 import { ApolloServer } from "apollo-server-express";
 import typeDefs from "./schema/typeDefs.js";
 import resolvers from "./schema/resolvers.js";
 import cors from "cors";
-import jwt from "jsonwebtoken";
+import mysql from "mysql2/promise";
 
 dotenv.config();
 
@@ -14,13 +13,6 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-
-// Rate limiting
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000, // 15 minutes
-//   max: 100, // limit each IP to 100 requests per windowMs
-// });
-// app.use(limiter);
 
 // CORS configuration
 const corsOptions = {
@@ -30,92 +22,49 @@ const corsOptions = {
     "http://10.10.12.223:3000",
   ],
   credentials: true,
-  methods: "GET,POST,OPTIONS", // Allowed methods
-  allowedHeaders: "Content-Type, Authorization", // Allowed headers
+  methods: "GET,POST,OPTIONS",
+  allowedHeaders: "Content-Type, Authorization",
 };
 app.use(cors(corsOptions));
 
-const dynamicCors = (req, res, next) => {
-  const origin = req.header("Origin");
-  const allowedOrigins = ["https://example.com", "https://anotherdomain.com"];
-  if (allowedOrigins.includes(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  next();
-};
-
-app.use(dynamicCors);
-
-// Middleware to Extract User from Token
-app.use((req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-  if (token) {
-    try {
-      req.user = jwt.verify(token, process.env.JWT_SECRET);
-    } catch (err) {
-      console.warn("Invalid token:", err.message);
-    }
-  }
-  next();
+// MySQL Database Connection
+const db = await mysql.createPool({
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
 });
 
-// Apollo Server with Context for Authentication
+// GraphQL Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  playground: true,
-  introspection: true,
+  introspection: true,  // ✅ Enables schema inspection
+  playground: true,  // ✅ Enables the GraphQL Playground
   context: ({ req }) => {
-    // Add authentication/authorization context here
     return { user: req.user };
   },
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send("Something broke!");
-});
-
-// Process error handlers
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught Exception:", err);
-  process.exit(1);
-});
-
-process.on("unhandledRejection", (err) => {
-  console.error("Unhandled Rejection:", err);
-  process.exit(1);
-});
-
 async function startServer() {
-  try {
-    await server.start();
-    server.applyMiddleware({
-      app,
-      path: "/graphql",
-      cors: {
-        origin: [
-          "http://localhost:3000",
-          "https://studio.apollographql.com",
-          "http://10.10.12.223:3000",
-        ],
-        credentials: true,
-      },
-    });
+  await server.start();
+  server.applyMiddleware({
+    app,
+    path: "/graphql",
+    cors: corsOptions,
+  });
 
-    const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => {
-      console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
-    });
-  } catch (error) {
-    console.error("Failed to start server:", error);
-    process.exit(1);
-  }
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+    console.log(`🌍 Accessible via http://${process.env.SERVER_HOST}:${PORT}/graphql`);
+  });
 }
 
-startServer();
+startServer().catch((err) => {
+  console.error("Failed to start server:", err);
+  process.exit(1);
+});

@@ -91,6 +91,7 @@ const typeDefs = gql`
     quantity: Float
     uom: String
     lineDesc: String
+	amount: Float
   }
 
   # RECEIPT Schema

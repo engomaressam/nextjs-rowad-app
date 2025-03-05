@@ -1,9 +1,7 @@
 "use client";
 
-import { ApolloProvider } from "@apollo/client";
-import client from "./graphql/client";
+import { Providers } from "./providers"; // Wraps Apollo, Auth & HeroUI
 import Navbar from "./components/Navbar";
-
 import "./styles/globals.css";
 
 export default function RootLayout({
@@ -12,13 +10,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ApolloProvider client={client}>
-      <html lang="en">
-        <body className="bg-grey-100">
+    <html lang="en">
+      <body className="bg-grey-100 min-h-screen">
+        <Providers>
           <Navbar />
           <main className="p-4">{children}</main>
-        </body>
-      </html>
-    </ApolloProvider>
+        </Providers>
+      </body>
+    </html>
   );
 }
